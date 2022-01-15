@@ -1,12 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"math/rand"
 
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 type User struct {
@@ -15,27 +13,10 @@ type User struct {
 	Id       int
 }
 
-func signUp(email string, password string) string {
-	if email == "" || password == "" {
-		return "Sorry, no credentials provided"
-	}
-
-	dsn := "host=localhost user=cervante password=cervantepswd dbname=auth port=5432"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	//var users []User
-	//	if err := db.Where("email = ?", email).First(&users).Error; err != nil {
-	//		return "Sorry, Email Already in Use"
-	//	}
+func signUp(email string, password string) {
 
 	var users User
-	db.Raw("SELECT email FROM users WHERE email = ?", email).Scan(&users.Email)
-	if users.Email != "" {
-		return "Email already exists"
-	}
+
 	userId := rand.Intn(1000)
 
 	db.Raw("SELECT id FROM users WHERE id = ?", userId).Scan(&users.Id)
@@ -50,7 +31,7 @@ func signUp(email string, password string) string {
 	hashPswd, passwordErr := hashPassword(password)
 
 	if passwordErr != nil {
-		return "Password Error"
+		log.Fatal(passwordErr)
 	}
 
 	db.Create(&User{
@@ -59,7 +40,6 @@ func signUp(email string, password string) string {
 		Id:       userId,
 	})
 
-	return "Successfull, user created!"
 }
 
 func hashPassword(password string) (string, error) {
