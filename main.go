@@ -13,9 +13,11 @@ type createUser struct {
 }
 
 func main() {
+
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.POST("/signUp", postSignUp)
-	r.Run()
+	r.Run(":8080")
 
 }
 
